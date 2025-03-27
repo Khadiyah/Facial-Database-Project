@@ -9,18 +9,20 @@ class DatabaseManager:
         self.create_tables()
 
     def enable_foreign_keys(self):
-        """Enable foreign key constraints."""
+        """Enable Foreign Key constraints."""
         self.cursor.execute("PRAGMA foreign_keys = ON;")
 
     def create_tables(self):
-        """Create all necessary tables if they don't exist."""
+        """Create all necessary tables."""
         self.cursor.executescript('''
             CREATE TABLE IF NOT EXISTS Users (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 phone TEXT UNIQUE NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                user_type_id TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_type_id) REFERENCES UserType(type_id) ON DELETE SET NULL
             );
 
             CREATE TABLE IF NOT EXISTS Faces (
@@ -51,14 +53,16 @@ class DatabaseManager:
         self.conn.commit()
 
 
-    def add_user(self, name, email, phone):
+
+    def add_user(self, name, email, phone, user_type_id=None):
         """Add a new user."""
         try:
-            self.cursor.execute("INSERT INTO Users (name, email, phone) VALUES (?, ?, ?)", (name, email, phone))
+            self.cursor.execute("INSERT INTO Users (name, email, phone, user_type_id) VALUES (?, ?, ?, ?)", 
+                                (name, email, phone, user_type_id))
             self.conn.commit()
             return self.cursor.lastrowid
         except sqlite3.IntegrityError:
-            print(f"Error: Email '{email}' or phone '{phone}' already exists.")
+            print(f"Error: Email '{email}' or Phone '{phone}' already exists.")
             return None
 
 
@@ -66,6 +70,7 @@ class DatabaseManager:
         """Add face data for a user."""
         self.cursor.execute("INSERT INTO Faces (user_id, image_path) VALUES (?, ?)", (user_id, image_path))
         self.conn.commit()
+
 
     def add_user_type(self, type_id, typename):
         """Add a new user type."""
@@ -86,7 +91,7 @@ class DatabaseManager:
 
 
     def allow_access(self, user_id, device_id):
-        """Grant access to a user for a specific device."""
+        """Grant access to a device for a user."""
         self.cursor.execute("INSERT INTO Allow (user_id, device_id) VALUES (?, ?)", (user_id, device_id))
         self.conn.commit()
 
@@ -127,33 +132,84 @@ class DatabaseManager:
         self.conn.commit()
 
 
-    def close(self):
-        """Close the database connection."""
-        self.conn.close()
+    # --- Aggregation Function ---
+    def count_faces(self):
+        """Count the number of face records."""
+        self.cursor.execute("SELECT COUNT(*) FROM Faces")
+        return self.cursor.fetchone()[0]
 
+
+    # --- Queries using JOIN ---
+    def get_users_with_faces(self):
+        """Get users along with their face data."""
+        self.cursor.execute('''
+            SELECT Users.user_id, Users.name, Faces.image_path
+            FROM Users
+            JOIN Faces ON Users.user_id = Faces.user_id
+        ''')
+        return self.cursor.fetchall()
+
+
+    def get_users_accessing_devices(self):
+        """Get users and the devices they have access to."""
+        self.cursor.execute('''
+            SELECT Users.name, Device.device_id, Device.location
+            FROM Users
+            JOIN Allow ON Users.user_id = Allow.user_id
+            JOIN Device ON Allow.device_id = Device.device_id
+        ''')
+        return self.cursor.fetchall()
+
+
+    def get_users_with_type(self):
+        """Get users with their assigned type."""
+        self.cursor.execute('''
+            SELECT Users.name, UserType.typename
+            FROM Users
+            LEFT JOIN UserType ON Users.user_type_id = UserType.type_id
+        ''')
+        return self.cursor.fetchall()
+
+
+     # --- Window Function ---
+    def get_ranked_devices(self):
+        """Rank devices based on location using ROW_NUMBER()."""
+        self.cursor.execute('''
+            SELECT device_id, location,
+            ROW_NUMBER() OVER (ORDER BY location) AS rank
+            FROM Device
+        ''')
+        return self.cursor.fetchall()
+
+
+    def __del__(self):
+        """Close the database connection automatically."""
+        self.conn.close()
 
 
 
 if __name__ == "__main__":
     db = DatabaseManager()
 
-    # user_id = db.add_user("Kaopun", "66050504@kmitl.ac.th", "092-252-7223")
+    # Add a user
+    # user_id = db.add_user("Focus", "67050652@kmitl.ac.th", "092-450-4400", "student")
     # if user_id:
-    #     print(f"User added successfully : ID = {user_id}")
+    #     print(f"User added successfully: ID = {user_id}")
+    #     db.add_face(user_id, "images/focus_face.jpg")
+    #     db.allow_access(user_id, "device_003")
 
-    
-    # if user_id:
-    #     db.add_face(user_id, "path/to/alice_face.jpg")
 
-   
+    # Add user types
     # db.add_user_type("student", "Student")
     # db.add_user_type("teaching assistant", "Teaching Assistant")
     # db.add_user_type("teacher", "Teacher")
+    # db.add_user_type("secretary", "Secretary")
     # print("User Types:")
     # for user_type in db.cursor.execute("SELECT * FROM UserType").fetchall():
     #     print(user_type)
 
-    
+
+    # Add devices
     # db.add_device("device_001", "KDAI")
     # db.add_device("device_002", "Coworking 714")
     # db.add_device("device_003", "Coworking 102")
@@ -168,21 +224,26 @@ if __name__ == "__main__":
     #  db.allow_access(user_id, "device_001")
     # print(f"Access granted for User ID {user_id} to Device ID 'device_001'")
 
+
 # print("Access List:")
 # for access in db.get_access_list():
 #     allow_id, user_id, device_id = access
 #     print(f"Allow ID: {allow_id} | User ID: {user_id} | Device ID: {device_id}")
 
 
-# print("User List:")
-# for user in db.get_users():
-#     user_id, name, email, phone, created_at = user
-#     print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
+print("User List:")
+for user in db.get_users():
+    user_id, name, email, phone, created_at = user
+    print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
 
-    # print("List of equipment : ", db.get_devices())
 
-    # print("Access rights : ", db.get_access_list())
+# Display data
+    # print("Total Faces:", db.count_faces())
+    # print("Users with Faces:", db.get_users_with_faces())
+    # print("Users Accessing Devices:", db.get_users_accessing_devices())
+    # print("Users with Type:", db.get_users_with_type())
+    # print("Ranked Devices:", db.get_ranked_devices())
 
     
 
-    db.close()
+    db.__del__()
