@@ -1,8 +1,15 @@
 # Project-Database-Facial
 
-# Introduction 
-    We implemented facial recognition for room access to prevent key card sharing, lost cards, and the inconvenience of passwords. However, without a strong facial database, accuracy and efficiency may be compromised.
+# 📌 Overview
+This project is a face database designed to manage and identify people's faces in K-dai. The system allows administrators to:
+Register users with their information and facial images
 
-This project focuses on developing facial database for storing facial images along with identity details and multiple facial angles  to enhance accuracy. The scope is limited to data storage and management, excluding facial recognition model development.
+Store and manage face images securely
+
+Assign access permissions to specific devices
+
+Retrieve and display user face images through a web interface
+
+
 
 
