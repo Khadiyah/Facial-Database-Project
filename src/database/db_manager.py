@@ -137,7 +137,7 @@ class DatabaseManager:
 if __name__ == "__main__":
     db = DatabaseManager()
 
-    # user_id = db.add_user("...", "...@gmail.com", "000-000-0000")
+    # user_id = db.add_user("Kaopun", "66050504@kmitl.ac.th", "092-252-7223")
     # if user_id:
     #     print(f"User added successfully : ID = {user_id}")
 
@@ -174,10 +174,10 @@ if __name__ == "__main__":
 #     print(f"Allow ID: {allow_id} | User ID: {user_id} | Device ID: {device_id}")
 
 
-print("User List:")
-for user in db.get_users():
-    user_id, name, email, phone, created_at = user
-    print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
+# print("User List:")
+# for user in db.get_users():
+#     user_id, name, email, phone, created_at = user
+#     print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
 
     # print("List of equipment : ", db.get_devices())
 
