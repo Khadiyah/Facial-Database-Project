@@ -207,21 +207,22 @@ if __name__ == "__main__":
     db = DatabaseManager()
 
     #Add a user
-    user_id = db.add_user("Pin", "67050658@kmitl.ac.th", "082-816-4911", "type_01")
+    user_id = db.add_user("Dr.Big", "akadej.ud@kmitl.ac.th", "061-890-1234", "type_05")
     if user_id:
         print(f"User added successfully: ID = {user_id}")
-        db.add_face(user_id, "src/images/pin_face.jpg")
-        # db.allow_access(user_id, "device_001")
+        db.add_face(user_id, "src/images/dr.big_face.jpg")
+        db.allow_access(user_id, "device_001")
         db.allow_access(user_id, "device_002")
         db.allow_access(user_id, "device_003")
         db.allow_access(user_id, "device_004")
 
 
-    #Add user types
+    # #Add user types
     # db.add_user_type("type_01", "Student")
     # db.add_user_type("type_02", "Teaching Assistant")
     # db.add_user_type("type_03", "Teacher")
     # db.add_user_type("type_04", "Secretary")
+    # db.add_user_type("type_05", "Boss")
     # print("User Types:")
     # for user_type in db.cursor.execute("SELECT * FROM UserType").fetchall():
     #     print(user_type)
@@ -237,15 +238,10 @@ if __name__ == "__main__":
     #     device_id, location = device
     #     print(f"ID: {device_id} | Location: {location}")
 
-    
-    # if user_id:
-    #  db.allow_access(user_id, "device_001")
-    # print(f"Access granted for User ID {user_id} to Device ID 'device_001'")
-
 
     # print("Access List:")
     # for access in db.get_access_list():
-    # allow_id, user_id, device_id = access
+    #     allow_id, user_id, device_id = access
     # print(f"Allow ID: {allow_id} | User ID: {user_id} | Device ID: {device_id}")
 
 
@@ -254,17 +250,19 @@ if __name__ == "__main__":
     #     user_id, name, email, phone, created_at = user
     #     print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
 
-    # db.delete_user_by_id(20)
+    # #Delete User by id (?)
+    # db.delete_user_by_id()
     # print(db.get_users())
 
+    # #Reset Database
     # db.reset_database()
 
 
-    # Display data
+    #Display data
     # print("Total Faces:", db.count_faces())
     # print("Users with Faces:", db.get_users_with_faces())
     # print("Users Accessing Devices:", db.get_users_accessing_devices())
-    #print("Users with Type:", db.get_users_with_type())
+    # print("Users with Type:", db.get_users_with_type())
     # print("Ranked Devices:", db.get_ranked_devices())
     
 
