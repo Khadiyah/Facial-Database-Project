@@ -120,16 +120,31 @@ class DatabaseManager:
         return self.cursor.fetchall()
 
 
-    def delete_user(self, user_id):
-        """Delete a user and their related data."""
+    def delete_user_by_id(self, user_id):
+        """Delete a user and all related data (Faces, Allow)."""
+        self.cursor.execute("DELETE FROM Faces WHERE user_id = ?", (user_id,))
+        self.cursor.execute("DELETE FROM Allow WHERE user_id = ?", (user_id,))
         self.cursor.execute("DELETE FROM Users WHERE user_id = ?", (user_id,))
         self.conn.commit()
+        print(f"User ID {user_id} and all related data have been deleted.")
 
 
     def delete_device(self, device_id):
         """Delete a device and its related access permissions."""
         self.cursor.execute("DELETE FROM Device WHERE device_id = ?", (device_id,))
         self.conn.commit()
+
+
+    def reset_database(self):
+        """Delete all data in the database and reset auto-increment values."""
+        self.cursor.execute("DELETE FROM Faces")
+        self.cursor.execute("DELETE FROM Allow")
+        self.cursor.execute("DELETE FROM Users")
+        self.cursor.execute("DELETE FROM UserType")
+        self.cursor.execute("DELETE FROM Device")
+        self.cursor.execute("DELETE FROM sqlite_sequence")  # Reset auto-increment
+        self.conn.commit()
+        print("Database has been reset.")
 
 
     # --- Aggregation Function ---
@@ -191,25 +206,28 @@ class DatabaseManager:
 if __name__ == "__main__":
     db = DatabaseManager()
 
-    # Add a user
-    # user_id = db.add_user("Focus", "67050652@kmitl.ac.th", "092-450-4400", "student")
-    # if user_id:
-    #     print(f"User added successfully: ID = {user_id}")
-    #     db.add_face(user_id, "images/focus_face.jpg")
-    #     db.allow_access(user_id, "device_003")
+    #Add a user
+    user_id = db.add_user("Pin", "67050658@kmitl.ac.th", "082-816-4911", "type_01")
+    if user_id:
+        print(f"User added successfully: ID = {user_id}")
+        db.add_face(user_id, "src/images/pin_face.jpg")
+        # db.allow_access(user_id, "device_001")
+        db.allow_access(user_id, "device_002")
+        db.allow_access(user_id, "device_003")
+        db.allow_access(user_id, "device_004")
 
 
-    # Add user types
-    # db.add_user_type("student", "Student")
-    # db.add_user_type("teaching assistant", "Teaching Assistant")
-    # db.add_user_type("teacher", "Teacher")
-    # db.add_user_type("secretary", "Secretary")
+    #Add user types
+    # db.add_user_type("type_01", "Student")
+    # db.add_user_type("type_02", "Teaching Assistant")
+    # db.add_user_type("type_03", "Teacher")
+    # db.add_user_type("type_04", "Secretary")
     # print("User Types:")
     # for user_type in db.cursor.execute("SELECT * FROM UserType").fetchall():
     #     print(user_type)
 
 
-    # Add devices
+    # #Add devices
     # db.add_device("device_001", "KDAI")
     # db.add_device("device_002", "Coworking 714")
     # db.add_device("device_003", "Coworking 102")
@@ -225,25 +243,49 @@ if __name__ == "__main__":
     # print(f"Access granted for User ID {user_id} to Device ID 'device_001'")
 
 
-# print("Access List:")
-# for access in db.get_access_list():
-#     allow_id, user_id, device_id = access
-#     print(f"Allow ID: {allow_id} | User ID: {user_id} | Device ID: {device_id}")
+    # print("Access List:")
+    # for access in db.get_access_list():
+    # allow_id, user_id, device_id = access
+    # print(f"Allow ID: {allow_id} | User ID: {user_id} | Device ID: {device_id}")
 
 
-print("User List:")
-for user in db.get_users():
-    user_id, name, email, phone, created_at = user
-    print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
+    # print("User List:")
+    # for user in db.get_users():
+    #     user_id, name, email, phone, created_at = user
+    #     print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
+
+    # db.delete_user_by_id(20)
+    # print(db.get_users())
+
+    # db.reset_database()
 
 
-# Display data
+    # Display data
     # print("Total Faces:", db.count_faces())
     # print("Users with Faces:", db.get_users_with_faces())
     # print("Users Accessing Devices:", db.get_users_accessing_devices())
-    # print("Users with Type:", db.get_users_with_type())
+    #print("Users with Type:", db.get_users_with_type())
     # print("Ranked Devices:", db.get_ranked_devices())
+    
 
+    # print("Users after deletion:", db.get_users())
+    # print("Faces after deletion:", db.cursor.execute("SELECT * FROM Faces").fetchall())
+    # print("Allow after deletion:", db.cursor.execute("SELECT * FROM Allow").fetchall())
+
+    # db.cursor.execute("DELETE FROM Faces")
+    # db.cursor.execute("DELETE FROM Allow")
+    # db.cursor.execute("DELETE FROM Users")
+    # db.cursor.execute("DELETE FROM sqlite_sequence WHERE name='Users'")
+    # db.conn.commit()
+    # print("All users and related data have been deleted.")
+    
+    # print("Users Table:", db.cursor.execute("SELECT * FROM Users").fetchall())
+    # print("Faces Table:", db.cursor.execute("SELECT * FROM Faces").fetchall())
+    # print("Allow Table:", db.cursor.execute("SELECT * FROM Allow").fetchall())
+    # print("UserType Table:", db.cursor.execute("SELECT * FROM UserType").fetchall())
+    # print("Device Table:", db.cursor.execute("SELECT * FROM Device").fetchall())
+    
+    
     
 
     db.__del__()
