@@ -207,14 +207,14 @@ if __name__ == "__main__":
     db = DatabaseManager()
 
     #Add a user
-    user_id = db.add_user("Dr.Big", "akadej.ud@kmitl.ac.th", "061-890-1234", "type_05")
-    if user_id:
-        print(f"User added successfully: ID = {user_id}")
-        db.add_face(user_id, "src/images/dr.big_face.jpg")
-        db.allow_access(user_id, "device_001")
-        db.allow_access(user_id, "device_002")
-        db.allow_access(user_id, "device_003")
-        db.allow_access(user_id, "device_004")
+    # user_id = db.add_user("Dr.Big", "akadej.ud@kmitl.ac.th", "061-890-1234", "type_05")
+    # if user_id:
+    #     print(f"User added successfully: ID = {user_id}")
+    #     db.add_face(user_id, "src/images/dr.big_face.jpg")
+    #     db.allow_access(user_id, "device_001")
+    #     db.allow_access(user_id, "device_002")
+    #     db.allow_access(user_id, "device_003")
+    #     db.allow_access(user_id, "device_004")
 
 
     # #Add user types
@@ -224,8 +224,8 @@ if __name__ == "__main__":
     # db.add_user_type("type_04", "Secretary")
     # db.add_user_type("type_05", "Boss")
     # print("User Types:")
-    # for user_type in db.cursor.execute("SELECT * FROM UserType").fetchall():
-    #     print(user_type)
+    # for type_id, typename in db.cursor.execute("SELECT * FROM UserType").fetchall():
+    #     print(f"Type ID: {type_id} | Type Name: {typename}")
 
 
     # #Add devices
@@ -239,31 +239,66 @@ if __name__ == "__main__":
     #     print(f"ID: {device_id} | Location: {location}")
 
 
+    # #Get Access List
     # print("Access List:")
-    # for access in db.get_access_list():
-    #     allow_id, user_id, device_id = access
-    # print(f"Allow ID: {allow_id} | User ID: {user_id} | Device ID: {device_id}")
+    # for allow_id, user_id, device_id in db.get_access_list():
+    #     print(f"Allow ID: {allow_id} | User ID: {user_id} | Device ID: {device_id}")
 
 
+    # #Get Users
     # print("User List:")
     # for user in db.get_users():
-    #     user_id, name, email, phone, created_at = user
-    #     print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Created At: {created_at}")
+    #     user_id, name, email, phone, user_type_id, created_at = user
+    #     print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Type: {user_type_id} | Created: {created_at}")
 
-    # #Delete User by id (?)
+
+    # #Get User By ID
+    # print("User Info:")
+    # user = db.get_user_by_id(1)  
+    # if user:
+    #     user_id, name, email, phone, user_type_id, created_at = user
+    #     print(f"ID: {user_id} | Name: {name} | Email: {email} | Phone: {phone} | Type: {user_type_id} | Created: {created_at}")
+    # else:
+    #     print("User not found.")
+
+
+    # #Delete User By ID (?)
     # db.delete_user_by_id()
     # print(db.get_users())
+
+
+    # #Deleted Device
+    # print("Deleted Device:")
+    # device_id = "device_000"  # example device_id
+    # db.delete_device(device_id)
+    # print(f"Device ID: {device_id} has been removed.")
+
 
     # #Reset Database
     # db.reset_database()
 
 
-    #Display data
-    # print("Total Faces:", db.count_faces())
-    # print("Users with Faces:", db.get_users_with_faces())
-    # print("Users Accessing Devices:", db.get_users_accessing_devices())
-    # print("Users with Type:", db.get_users_with_type())
-    # print("Ranked Devices:", db.get_ranked_devices())
+    # #Display data
+    # print("Total Faces:")
+    # total_faces = db.count_faces()
+    # print(f"Total: {total_faces}")
+
+    # print("Users with Faces:")
+    # for user_id, name, image_path in db.get_users_with_faces():
+    #     print(f"User ID: {user_id} | Name: {name} | Image Path: {image_path}")
+
+    # print("Users Accessing Devices:")
+    # for name, device_id, location in db.get_users_accessing_devices():
+    #     print(f"User: {name} | Device ID: {device_id} | Location: {location}")
+
+    # print("Users with Type:")
+    # for name, typename in db.get_users_with_type():
+    #  print(f"User: {name} | Type: {typename}")
+
+    # print("Ranked Devices:")
+    # for device_id, location, rank in db.get_ranked_devices():
+    #     print(f"Rank: {rank} | Device ID: {device_id} | Location: {location}")
+
     
 
     # print("Users after deletion:", db.get_users())
@@ -282,8 +317,6 @@ if __name__ == "__main__":
     # print("Allow Table:", db.cursor.execute("SELECT * FROM Allow").fetchall())
     # print("UserType Table:", db.cursor.execute("SELECT * FROM UserType").fetchall())
     # print("Device Table:", db.cursor.execute("SELECT * FROM Device").fetchall())
-    
-    
     
 
     db.__del__()
