@@ -15,8 +15,8 @@ def user_detail(item):
     st.write(f"User Type: {item['user_type']}")
     st.write(f"Allow Access room: {item['allowed_room']}")
 
-
-db = DatabaseManager("/Users/thohirahhusaini/Downloads/Project-Database-/table.sql")
+DB_PATH = BASE_DIR + "/table.sql"
+db = DatabaseManager(DB_PATH)
 users = db.get_users()
 students = []
 for user in users:

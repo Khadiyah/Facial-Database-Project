@@ -98,7 +98,6 @@ class DatabaseManager:
 
     def get_users(self):
         """Retrieve all users."""
-        print('xxx')
         self.cursor.execute("SELECT * FROM Users")
         return self.cursor.fetchall()
 
