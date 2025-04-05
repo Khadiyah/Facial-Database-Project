@@ -1,9 +1,12 @@
 import streamlit as st
 from PIL import Image
 
+import os
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+from database.db_manager import DatabaseManager
+
 st.title("Facial Database")
 
-# Define the dialog popup
 @st.dialog("User information")
 def user_detail(item):
     st.write(f"Name: {item['name']}")
@@ -12,38 +15,41 @@ def user_detail(item):
     st.write(f"User Type: {item['user_type']}")
     st.write(f"Allow Access room: {item['allowed_room']}")
 
-# Sample students data
-students = [
-    {
-        "id": 1,
-        "name": "Alice Smith",
-        "phone": "+1234567890",
-        "email": "alice.smith@example.com",
-        "user_type": "Admin",
-        "allowed_room": "Room 101",
-        "image_path": "../images/biw_face.jpg"
-    },
-    {
-        "id": 2,
-        "name": "Bob Johnson",
-        "phone": "+0987654321",
-        "email": "bob.johnson@example.com",
-        "user_type": "Editor",
-        "allowed_room": "Room 102",
-        "image_path": "../images/game_face.jpg"
-    },
-    {
-        "id": 3,
-        "name": "Charlie Brown",
-        "phone": "+1122334455",
-        "email": "charlie.brown@example.com",
-        "user_type": "Viewer",
-        "allowed_room": "Room 103",
-        "image_path": "../images/pin_face.jpg"
-    },
-]
 
-st.subheader("Student List")
+db = DatabaseManager("/Users/thohirahhusaini/Downloads/Project-Database-/table.sql")
+users = db.get_users()
+students = []
+for user in users:
+    user_id, name, email, phone, user_type_id, created_at = user
+
+    db.cursor.execute("SELECT typename FROM UserType WHERE type_id = ?", (user_type_id,))
+    result = db.cursor.fetchone()
+    user_type = result[0] if result else "Unknown"
+
+    db.cursor.execute('''
+        SELECT Device.location
+        FROM Allow
+        JOIN Device ON Allow.device_id = Device.device_id
+        WHERE Allow.user_id = ?
+    ''', (user_id,))
+    allowed_rooms = [row[0] for row in db.cursor.fetchall()]
+    allowed_room = ", ".join(allowed_rooms)
+
+    # Get image path (just the first face image for display)
+    db.cursor.execute("SELECT image_path FROM Faces WHERE user_id = ?", (user_id,))
+    result = db.cursor.fetchone()
+    image_path = BASE_DIR + "/" + result[0]
+
+    # Append to student list
+    students.append({
+        "id": user_id,
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "user_type": user_type,
+        "allowed_room": allowed_room,
+        "image_path": image_path
+    })
 
 col_count = 3
 row_count = (len(students) // col_count) + (1 if len(students) % col_count != 0 else 0)
@@ -56,8 +62,7 @@ for i in range(row_count):
             student = students[index]
             img = Image.open(student["image_path"])
 
-            # Use the column to create an image and a button below it
             with cols[j]:
-                st.image(img, caption=student["name"], use_container_width=True)
-                if st.button("View Info", key=f"btn-{student['id']}"):
+                st.image(img, use_container_width=True)
+                if st.button("View user information", key=f"btn-{student['id']}", use_container_width=True):
                     user_detail(student)
