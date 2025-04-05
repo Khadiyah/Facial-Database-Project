@@ -30,7 +30,7 @@ Retrieve and display user face images through a web interface
 │   ├── images               # Face images of user
 │   │   ├── aum_face.jpg
 │   │   ├── biw_face.jpg
-│   │   └── ...              # More student images
+│   │   └── ...              # More user images
 │   └── initial_table.sql    # SQL to initialize DB
 ```
 
