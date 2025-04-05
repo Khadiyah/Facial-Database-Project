@@ -1,9 +1,9 @@
 import streamlit as st
-import os
 from PIL import Image
 
 st.title("Facial Database")
 
+# Define the dialog popup
 @st.dialog("User information")
 def user_detail(item):
     st.write(f"Name: {item['name']}")
@@ -11,8 +11,8 @@ def user_detail(item):
     st.write(f"Email: {item['email']}")
     st.write(f"User Type: {item['user_type']}")
     st.write(f"Allow Access room: {item['allowed_room']}")
-     
 
+# Sample students data
 students = [
     {
         "id": 1,
@@ -45,22 +45,19 @@ students = [
 
 st.subheader("Student List")
 
-col_count = 3  
+col_count = 3
 row_count = (len(students) // col_count) + (1 if len(students) % col_count != 0 else 0)
-
 
 for i in range(row_count):
     cols = st.columns(col_count)
-   
     for j in range(col_count):
         index = i * col_count + j
         if index < len(students):
             student = students[index]
-            img_path = student["image_path"]
-            
-            img = Image.open(img_path)
-            cols[j].image(img, caption=student["name"], use_container_width=True)
-           
-            if st.button('info', key=f'btn-{student["id"]}'):
-                user_detail(student) 
-    
+            img = Image.open(student["image_path"])
+
+            # Use the column to create an image and a button below it
+            with cols[j]:
+                st.image(img, caption=student["name"], use_container_width=True)
+                if st.button("View Info", key=f"btn-{student['id']}"):
+                    user_detail(student)
