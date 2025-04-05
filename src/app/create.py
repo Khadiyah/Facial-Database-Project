@@ -9,7 +9,7 @@ db = DatabaseManager(DB_PATH)
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), '..', 'images')
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-st.title("Add student")
+st.title("Add user")
 
 with st.form(key='user_form'):
     name = st.text_input("Name")
